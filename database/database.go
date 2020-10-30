@@ -15,8 +15,16 @@ func New(connectionURI string) *mongo.Database {
 	clientOptions := options.Client().ApplyURI(connectionURI)
 	client, err := mongo.NewClient(clientOptions)
 
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	err = client.Connect(ctx)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	defer cancel()
 

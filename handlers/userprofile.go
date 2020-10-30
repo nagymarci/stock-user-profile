@@ -58,7 +58,6 @@ func UserprofileCreateHandler(router *mux.Router, userprofileController *control
 func UserprofileGetHandler(router *mux.Router, userprofileController *controllers.UserprofileController, extractUserIDFromToken func(*http.Request) string) {
 	router.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		userID := extractUserIDFromToken(r)
-		log.WithFields(log.Fields{"userId": userID}).Error("faszom")
 		id := mux.Vars(r)["id"]
 
 		log.Println(mux.Vars(r))
@@ -118,6 +117,5 @@ func handleJSONResponse(object interface{}, w http.ResponseWriter, status int) {
 func DefaultExtractUserID(r *http.Request) string {
 	user := r.Context().Value("user")
 	email := user.(*jwt.Token).Claims.(jwt.MapClaims)["sub"].(string)
-	log.Printf("User email: %s", email)
 	return email
 }

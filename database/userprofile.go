@@ -47,6 +47,8 @@ func (u *UserProfiles) Get(userID string) (model.Userprofile, error) {
 	var result model.Userprofile
 	err := u.collection.FindOne(context.TODO(), filter).Decode(&result)
 
-	log.WithFields(log.Fields{"userId": userID}).Error(err)
+	if err != nil {
+		log.WithFields(log.Fields{"userId": userID}).Error(err)
+	}
 	return result, err
 }

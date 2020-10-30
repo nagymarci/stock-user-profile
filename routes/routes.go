@@ -13,7 +13,7 @@ import (
 	"github.com/nagymarci/stock-user-profile/handlers"
 )
 
-func Route(userprofileController *controllers.UserprofileController) http.Handler {
+func Route(userprofileController *controllers.UserprofileController) (http.Handler, http.Handler) {
 	router := mux.NewRouter()
 	router.Use(corsMiddleware)
 
@@ -36,7 +36,17 @@ func Route(userprofileController *controllers.UserprofileController) http.Handle
 
 	n := negroni.New(recovery, negroni.NewLogger())
 	n.UseHandler(router)
-	return n
+
+	internalRouter := mux.NewRouter()
+	internalUserProfile := mux.NewRouter().PathPrefix("/userprofile").Subrouter()
+	handlers.UserprofileGetHandler(internalUserProfile, userprofileController, func(r *http.Request) string {
+		return mux.Vars(r)["id"]
+	})
+	internalRouter.PathPrefix("/userprofile").Handler(internalUserProfile)
+	internal := negroni.New(recovery, negroni.NewLogger())
+	internal.UseHandler(internalRouter)
+
+	return n, internal
 
 }
 

@@ -20,7 +20,11 @@ func main() {
 
 	uC := controllers.NewUserprofileController(uDb)
 
-	router := routes.Route(uC)
+	external, internal := routes.Route(uC)
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), router))
+	go func() {
+		log.Error(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT_INTERNAL")), internal))
+	}()
+
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), external))
 }

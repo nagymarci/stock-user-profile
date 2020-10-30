@@ -19,4 +19,5 @@ FROM alpine:latest
 COPY --from=builder /build/main .
 
 EXPOSE 3200
+EXPOSE 3201
 CMD ["./main"]

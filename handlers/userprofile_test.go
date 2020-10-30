@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -70,8 +71,8 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestSomething(t *testing.T) {
-	t.Run("simply test something", func(t *testing.T) {
+func TestUserprofileGetHandler(t *testing.T) {
+	t.Run("sends 200OK with data from db", func(t *testing.T) {
 		upDb := database.NewUserProfile(db)
 		upC := controllers.NewUserprofileController(upDb)
 
@@ -103,5 +104,28 @@ func TestSomething(t *testing.T) {
 			t.Fatalf("expected [%d], got [%d]", http.StatusOK, res.StatusCode)
 		}
 
+		var result model.Userprofile
+		json.NewDecoder(res.Body).Decode(&result)
+
+		assertEquals(t, &testProfile, &result)
+
 	})
+}
+
+func assertEquals(t *testing.T, expected *model.Userprofile, got *model.Userprofile) {
+	if expected.UserID != got.UserID {
+		t.Fatalf("expected [%s], got [%s]", expected.UserID, got.UserID)
+	}
+
+	if expected.Email != got.Email {
+		t.Fatalf("expected [%s], got [%s]", expected.Email, got.Email)
+	}
+
+	if expected.ExpectedReturn != got.ExpectedReturn {
+		t.Fatalf("expected [%f], got [%f]", expected.ExpectedReturn, got.ExpectedReturn)
+	}
+
+	if len(expected.Expectations) != len(got.Expectations) {
+		t.Fatalf("expected [%v], got [%v]", expected.Expectations, got.Expectations)
+	}
 }

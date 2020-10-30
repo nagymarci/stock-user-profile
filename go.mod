@@ -10,5 +10,4 @@ require (
 	github.com/testcontainers/testcontainers-go v0.9.0
 	github.com/urfave/negroni v1.0.0
 	go.mongodb.org/mongo-driver v1.4.2
-	honnef.co/go/tools v0.0.1-2020.1.6
 )

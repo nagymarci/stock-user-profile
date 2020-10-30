@@ -27,8 +27,8 @@ func NewUserProfile(db *mongo.Database) UserProfilesCollection {
 	}
 }
 
-//SaveUserProfile saves the userprofile in the parameter. If the userprofile for the given
-//UserId already exists, then it updates the fields
+//Save saves the userprofile in the parameter. If the userprofile for the given
+// UserId already exists, then it updates the fields
 func (u *UserProfiles) Save(up model.Userprofile) error {
 	filter := bson.D{{Key: "_id", Value: up.UserID}}
 

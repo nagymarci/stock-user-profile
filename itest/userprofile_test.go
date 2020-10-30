@@ -1,6 +1,7 @@
-package handlers
+package itest
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/nagymarci/stock-user-profile/controllers"
+	"github.com/nagymarci/stock-user-profile/handlers"
 	"github.com/nagymarci/stock-user-profile/model"
 
 	"github.com/nagymarci/stock-user-profile/database"
@@ -22,7 +24,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var dbConnectionURI string
 var db *mongo.Database
 
 func TestMain(m *testing.M) {
@@ -55,7 +56,7 @@ func TestMain(m *testing.M) {
 		log.Fatalln(err)
 	}
 
-	dbConnectionURI = fmt.Sprintf(
+	dbConnectionURI := fmt.Sprintf(
 		"mongodb://%s:%s@%s:%d",
 		"mongodb",
 		"mongodb",
@@ -91,7 +92,7 @@ func TestUserprofileGetHandler(t *testing.T) {
 		upDb.Save(testProfile)
 
 		router := mux.NewRouter().PathPrefix("/userprofile").Subrouter()
-		UserprofileGetHandler(router, upC, func(r *http.Request) string { return "userId" })
+		handlers.UserprofileGetHandler(router, upC, func(r *http.Request) string { return "userId" })
 
 		req := httptest.NewRequest(http.MethodGet, "/userprofile/userId", nil)
 		rec := httptest.NewRecorder()
@@ -106,6 +107,46 @@ func TestUserprofileGetHandler(t *testing.T) {
 
 		var result model.Userprofile
 		json.NewDecoder(res.Body).Decode(&result)
+
+		assertEquals(t, &testProfile, &result)
+
+	})
+}
+
+func TestUserprofileCreateHandler(t *testing.T) {
+	t.Run("sends 201OK and data in db", func(t *testing.T) {
+		upDb := database.NewUserProfile(db)
+		upC := controllers.NewUserprofileController(upDb)
+
+		testProfile := model.Userprofile{
+			UserID:         "userId",
+			Email:          "alic@example.com",
+			ExpectedReturn: 9,
+			Expectations: []model.Expectation{
+				model.Expectation{
+					Stock:         "INTC",
+					ExpectedRaise: 5.5,
+				},
+			},
+		}
+
+		router := mux.NewRouter().PathPrefix("/userprofile").Subrouter()
+		handlers.UserprofileCreateHandler(router, upC, func(r *http.Request) string { return "userId" })
+
+		body, _ := json.Marshal(testProfile)
+
+		req := httptest.NewRequest(http.MethodPost, "/userprofile", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+
+		router.ServeHTTP(rec, req)
+
+		res := rec.Result()
+
+		if res.StatusCode != http.StatusCreated {
+			t.Fatalf("expected [%d], got [%d]", http.StatusOK, res.StatusCode)
+		}
+
+		result, _ := upDb.Get("userId")
 
 		assertEquals(t, &testProfile, &result)
 

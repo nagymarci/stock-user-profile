@@ -11,18 +11,3 @@ type Userprofile struct {
 	Expectations   []Expectation `bson:"expectations"`
 	ExpectedReturn float64       `bson:"expectedReturn"`
 }
-
-type UserprofileRequest struct {
-	Expectations   []Expectation `json:"expectations"`
-	ExpectedReturn float64       `json:"expectedReturn"`
-}
-
-//ToUserprofile creates a Userprofile from a request object
-func (upr *UserprofileRequest) ToUserprofile(userID string, email string) Userprofile {
-	return Userprofile{
-		UserID:         userID,
-		Email:          email,
-		Expectations:   upr.Expectations,
-		ExpectedReturn: upr.ExpectedReturn,
-	}
-}

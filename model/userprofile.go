@@ -1,16 +1,16 @@
 package model
 
 type Expectation struct {
-	Stock         string  `bson:"stock" json:"stock"`
-	ExpectedRaise float64 `bson:"expectedRaise" json:"expectedRaise"`
+	Stock         string   `bson:"stock" json:"stock"`
+	ExpectedRaise *float64 `bson:"expectedRaise" json:"expectedRaise"`
 }
 
 type Userprofile struct {
 	UserID             string        `bson:"_id" json:"userId"`
 	Email              string        `bson:"email" json:"email"`
 	Expectations       []Expectation `bson:"expectations" json:"expectations"`
-	ExpectedReturn     float64       `bson:"expectedReturn" json:"expectedReturn"`
-	DefaultExpectation float64       `bson:"defaultExpectations" json:"defaultExpectation"`
+	ExpectedReturn     *float64      `bson:"expectedReturn" json:"expectedReturn"`
+	DefaultExpectation *float64      `bson:"defaultExpectation" json:"defaultExpectation"`
 }
 
 //GetExpectation return the expectation for the given stock if exists, returns
@@ -20,9 +20,9 @@ func (u *Userprofile) GetExpectation(stock string) float64 {
 
 	for _, exp := range expectations {
 		if exp.Stock == stock {
-			return exp.ExpectedRaise
+			return *exp.ExpectedRaise
 		}
 	}
 
-	return u.DefaultExpectation
+	return *u.DefaultExpectation
 }

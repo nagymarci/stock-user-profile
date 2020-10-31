@@ -77,16 +77,21 @@ func TestUserprofileGetHandler(t *testing.T) {
 		upDb := database.NewUserProfile(db)
 		upC := controllers.NewUserprofileController(upDb)
 
+		expectedReturn := 9.0
+		defaultExpectation := 9.0
+		expectedRaise := 5.5
+
 		testProfile := model.Userprofile{
 			UserID:         "userId",
 			Email:          "alic@example.com",
-			ExpectedReturn: 9,
+			ExpectedReturn: &expectedReturn,
 			Expectations: []model.Expectation{
 				model.Expectation{
 					Stock:         "INTC",
-					ExpectedRaise: 5.5,
+					ExpectedRaise: &expectedRaise,
 				},
 			},
+			DefaultExpectation: &defaultExpectation,
 		}
 
 		upDb.Save(testProfile)
@@ -118,16 +123,21 @@ func TestUserprofileCreateHandler(t *testing.T) {
 		upDb := database.NewUserProfile(db)
 		upC := controllers.NewUserprofileController(upDb)
 
+		expectedReturn := 9.0
+		defaultExpectation := 9.0
+		expectedRaise := 5.5
+
 		testProfile := model.Userprofile{
 			UserID:         "userId",
 			Email:          "alic@example.com",
-			ExpectedReturn: 9,
+			ExpectedReturn: &expectedReturn,
 			Expectations: []model.Expectation{
 				model.Expectation{
 					Stock:         "INTC",
-					ExpectedRaise: 5.5,
+					ExpectedRaise: &expectedRaise,
 				},
 			},
+			DefaultExpectation: &defaultExpectation,
 		}
 
 		router := mux.NewRouter().PathPrefix("/userprofile").Subrouter()
@@ -162,8 +172,8 @@ func assertEquals(t *testing.T, expected *model.Userprofile, got *model.Userprof
 		t.Fatalf("expected [%s], got [%s]", expected.Email, got.Email)
 	}
 
-	if expected.ExpectedReturn != got.ExpectedReturn {
-		t.Fatalf("expected [%f], got [%f]", expected.ExpectedReturn, got.ExpectedReturn)
+	if *expected.ExpectedReturn != *got.ExpectedReturn {
+		t.Fatalf("expected [%f], got [%f]", *expected.ExpectedReturn, *got.ExpectedReturn)
 	}
 
 	if len(expected.Expectations) != len(got.Expectations) {

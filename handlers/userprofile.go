@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -60,8 +61,6 @@ func UserprofileGetHandler(router *mux.Router, userprofileController *controller
 		userID := extractUserIDFromToken(r)
 		id := mux.Vars(r)["id"]
 
-		log.Println(mux.Vars(r))
-
 		if userID != id {
 			message := "UserID in request doesn't match userID in token"
 			handleErrorResponse(message, w, http.StatusUnauthorized)
@@ -81,6 +80,32 @@ func UserprofileGetHandler(router *mux.Router, userprofileController *controller
 }
 
 func validateFields(up model.Userprofile) error {
+	if isEmpty(up.UserID) {
+		return errors.New("Field \"userId\" is missing")
+	}
+
+	if isEmpty(up.Email) {
+		return errors.New("Field \"email\" is missing")
+	}
+
+	if up.ExpectedReturn == nil {
+		return errors.New("Field \"expectedReturn\" is missing")
+	}
+
+	if up.DefaultExpectation == nil {
+		return errors.New("Field \"defaultExpectation\" is missing")
+	}
+
+	for _, exp := range up.Expectations {
+		if isEmpty(exp.Stock) {
+			return errors.New("Field \"stock\" from \"expectations\" is missing")
+		}
+
+		if exp.ExpectedRaise == nil {
+			return errors.New("Field \"expectedRaise\" from \"expectations\" is missing")
+		}
+	}
+
 	return nil
 }
 
@@ -118,4 +143,8 @@ func DefaultExtractUserID(r *http.Request) string {
 	user := r.Context().Value("user")
 	email := user.(*jwt.Token).Claims.(jwt.MapClaims)["sub"].(string)
 	return email
+}
+
+func isEmpty(str string) bool {
+	return len(str) == 0 || str == " "
 }

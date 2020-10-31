@@ -111,7 +111,7 @@ func validateFields(up model.Userprofile) error {
 
 func handleError(err error, w http.ResponseWriter) {
 	statusCode := http.StatusInternalServerError
-	if err, ok := interface{}(&err).(model.HttpError); ok {
+	if err, ok := interface{}(err).(model.HttpError); ok {
 		statusCode = err.Status()
 	}
 	message := "Failed to process request: " + err.Error()

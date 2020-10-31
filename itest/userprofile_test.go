@@ -116,6 +116,24 @@ func TestUserprofileGetHandler(t *testing.T) {
 		assertEquals(t, &testProfile, &result)
 
 	})
+	t.Run("sends 404 when userprofile missing", func(t *testing.T) {
+		upDb := database.NewUserProfile(db)
+		upC := controllers.NewUserprofileController(upDb)
+
+		router := mux.NewRouter().PathPrefix("/userprofile").Subrouter()
+		handlers.UserprofileGetHandler(router, upC, func(r *http.Request) string { return "userId2" })
+
+		req := httptest.NewRequest(http.MethodGet, "/userprofile/userId2", nil)
+		rec := httptest.NewRecorder()
+
+		router.ServeHTTP(rec, req)
+
+		res := rec.Result()
+
+		if res.StatusCode != http.StatusNotFound {
+			t.Fatalf("expected [%d], got [%d]", http.StatusNotFound, res.StatusCode)
+		}
+	})
 }
 
 func TestUserprofileCreateHandler(t *testing.T) {

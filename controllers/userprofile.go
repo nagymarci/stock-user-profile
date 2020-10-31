@@ -2,6 +2,7 @@ package controllers
 
 import (
 	log "github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/nagymarci/stock-user-profile/database"
 	"github.com/nagymarci/stock-user-profile/model"
@@ -35,8 +36,11 @@ func (u *UserprofileController) Get(userID string) (model.Userprofile, error) {
 	userprofile, err := u.userprofiles.Get(userID)
 
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return model.Userprofile{}, model.NewNotFoundError("Requested profile does not exist")
+		}
 		message := "Cannot read userprofile " + err.Error()
-		log.WithFields(log.Fields{"userId": userID}).Error(err)
+		log.WithFields(log.Fields{"userId": userID}).Error(message)
 		return model.Userprofile{}, model.NewBadRequestError(message)
 	}
 

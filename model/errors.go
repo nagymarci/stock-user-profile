@@ -53,3 +53,23 @@ func (e *BadRequestError) Error() string {
 func (e *BadRequestError) Status() int {
 	return e.status
 }
+
+type notFoundError struct {
+	err    string
+	status int
+}
+
+func NewNotFoundError(msg string) error {
+	return &notFoundError{
+		err:    msg,
+		status: http.StatusNotFound,
+	}
+}
+
+func (e *notFoundError) Error() string {
+	return e.err
+}
+
+func (e *notFoundError) Status() int {
+	return e.status
+}
